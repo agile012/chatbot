@@ -1734,7 +1734,7 @@ button, .quick-btn, .message-content, .input-wrapper {
 
 /* User Profile Wrapper & Button */
 .user-profile-wrapper {
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 8px;
     align-items: center;
@@ -1828,6 +1828,58 @@ button, .quick-btn, .message-content, .input-wrapper {
 
 .sign-out-btn svg {
     flex-shrink: 0;
+}
+
+/* Sign In Button for Sidebar */
+.sidebar-signin-btn {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    width: 100%;
+    border-radius: 8px;
+}
+
+.sidebar-signin-btn.show {
+    display: flex;
+}
+
+.sidebar-signin-btn:hover {
+    background: rgba(100, 200, 255, 0.15);
+    border-color: var(--primary-light);
+}
+
+.sidebar-signin-btn svg {
+    flex-shrink: 0;
+}
+
+/* Collapsed sidebar sign-in button */
+@media (min-width: 769px) {
+    .sidebar.open .sidebar-signin-btn {
+        width: 40px;
+        height: 40px;
+        padding: 6px;
+        gap: 0;
+        justify-content: center;
+        border: none;
+        background: transparent;
+    }
+    
+    .sidebar.open .sidebar-signin-btn span {
+        display: none;
+    }
+    
+    .sidebar.open .sidebar-signin-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: transparent;
+    }
 }
 
 /* Collapsed sidebar - show only avatar on profile button */

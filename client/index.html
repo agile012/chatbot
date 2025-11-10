@@ -77,6 +77,7 @@
             </div>
             <!-- User Profile at bottom of sidebar -->
             <div class="sidebar-footer">
+                <!-- Profile wrapper (shown when logged in) -->
                 <div class="user-profile-wrapper" id="userProfile">
                     <button class="user-profile-btn" id="userProfileBtn" title="User Profile">
                         <img id="userAvatar" class="user-avatar" alt="User Avatar">
@@ -92,6 +93,14 @@
                         </button>
                     </div>
                 </div>
+                
+                <!-- Sign in button (shown when logged out) -->
+                <button class="sidebar-signin-btn" id="sidebarSignInBtn" title="Sign In">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3"/>
+                    </svg>
+                    <span>Sign In</span>
+                </button>
             </div>
         </aside>
 

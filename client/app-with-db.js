@@ -72,6 +72,12 @@ class ChatApp {
         if (this.signOutBtn) {
             this.signOutBtn.addEventListener('click', () => this.signOut());
         }
+        
+        // Sidebar sign-in button
+        const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
+        if (sidebarSignInBtn) {
+            sidebarSignInBtn.addEventListener('click', () => this.signInWithGoogle());
+        }
 
         // User profile menu toggle
         const userProfileBtn = document.getElementById('userProfileBtn');
@@ -162,10 +168,15 @@ class ChatApp {
             if (user) {
                 await this.handleSignIn(user);
             } else {
-                // Show Sign In button for unauthenticated users
+                // Show Sign In buttons for unauthenticated users
                 const signInBtnHeader = document.getElementById('signInBtnHeader');
                 if (signInBtnHeader) {
                     signInBtnHeader.style.display = 'flex';
+                }
+                
+                const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
+                if (sidebarSignInBtn) {
+                    sidebarSignInBtn.classList.add('show');
                 }
             }
 
@@ -180,10 +191,15 @@ class ChatApp {
 
         } catch (error) {
             console.log('Auth not available, using guest mode');
-            // Show Sign In button even if Supabase is unavailable
+            // Show Sign In buttons even if Supabase is unavailable
             const signInBtnHeader = document.getElementById('signInBtnHeader');
             if (signInBtnHeader) {
                 signInBtnHeader.style.display = 'flex';
+            }
+            
+            const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
+            if (sidebarSignInBtn) {
+                sidebarSignInBtn.classList.add('show');
             }
         }
     }
@@ -238,6 +254,12 @@ class ChatApp {
             this.userProfile.classList.add('visible');
         }
         
+        // Hide sidebar sign-in button
+        const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
+        if (sidebarSignInBtn) {
+            sidebarSignInBtn.classList.remove('show');
+        }
+        
         // Hide header sign-in button
         const signInBtnHeader = document.getElementById('signInBtnHeader');
         if (signInBtnHeader) {
@@ -278,9 +300,15 @@ class ChatApp {
             this.welcomeSection.style.display = 'flex';
         }
         
-        // Hide user profile in header
+        // Hide user profile in sidebar
         if (this.userProfile) {
             this.userProfile.classList.remove('visible');
+        }
+        
+        // Show sidebar sign-in button
+        const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
+        if (sidebarSignInBtn) {
+            sidebarSignInBtn.classList.add('show');
         }
         
         // Show header sign-in button
@@ -289,12 +317,12 @@ class ChatApp {
             signInBtnHeader.style.display = 'flex';
         }
         
-        // Hide sidebar
+        // Keep sidebar visible but show sign-in prompt
         if (this.sidebar) {
-            this.sidebar.style.display = 'none';
+            this.sidebar.style.display = 'flex';
         }
         if (this.chatHistoryList) {
-            this.chatHistoryList.innerHTML = '';
+            this.chatHistoryList.innerHTML = '<div class="empty-history">Sign in to see your chat history</div>';
         }
     }
 
