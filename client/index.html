@@ -56,7 +56,7 @@
 
     <div class="container">
         <!-- Sidebar for Chat History (hidden until signed in) -->
-        <aside class="sidebar" id="sidebar" style="display: none;">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h3>Chat History</h3>
                 <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
@@ -100,14 +100,14 @@
                         </button>
 
                         <!-- User Profile (shown when signed in) -->
-                        <div class="user-profile" id="userProfile" style="display: none;">
+                        <div class="user-profile" id="userProfile">
                             <img id="userAvatar" class="user-avatar" alt="User Avatar">
                             <span id="userName" class="user-name">User</span>
-                            <button class="sign-out-btn" id="signOutBtn">Sign Out</button>
+                            <button class="sign-out-btn" id="signOutBtn" title="Sign Out">Sign Out</button>
                         </div>
 
                         <!-- Sign In Button (shown when signed out) -->
-                        <button class="sign-in-btn" id="signInBtnHeader" title="Sign In">
+                        <button class="sign-in-btn" id="signInBtnHeader" title="Sign In" style="display: none;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
                             </svg>
@@ -122,37 +122,9 @@
                 <!-- Welcome Message -->
                 <div class="welcome-section" id="welcomeSection">
                     <div class="welcome-content">
-                        <div class="welcome-icon">
-                            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                            </svg>
-                        </div>
-                        <h2>Welcome to IIM Ahmedabad</h2>
-                        <p>I'm your intelligent assistant, here to help you with comprehensive information about our programs, admissions, campus facilities, academic resources, events, and much more. How may I assist you today?</p>
-                        
-                        <div class="quick-actions">
-                            <h3>Popular Questions</h3>
-                            <div class="quick-buttons">
-                                <button class="quick-btn" data-message="What programs and courses does IIM Ahmedabad offer?">
-                                    📚 Programs & Courses
-                                </button>
-                                <button class="quick-btn" data-message="Tell me about the admission process and requirements">
-                                    📝 Admissions Process
-                                </button>
-                                <button class="quick-btn" data-message="What facilities and amenities are available on campus?">
-                                    🏛️ Campus & Facilities
-                                </button>
-                                <button class="quick-btn" data-message="How can I contact the administration or get support?">
-                                    📞 Contact & Support
-                                </button>
-                                <button class="quick-btn" data-message="Tell me about student life and activities at IIMA">
-                                    🎓 Student Life
-                                </button>
-                                <button class="quick-btn" data-message="What are the latest events and announcements?">
-                                    📅 Events & News
-                                </button>
-                            </div>
-                        </div>
+                        <div class="welcome-icon">🤖</div>
+                        <h2>IIM Ahmedabad Assistant</h2>
+                        <p>Ask me anything about programs, admissions, campus life, and more</p>
                     </div>
                 </div>
 

@@ -191,11 +191,23 @@ class ChatApp {
             this.userAvatar.src = user.user_metadata?.avatar_url || 
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=003d82&color=fff`;
         }
+        
+        // Show user profile in header
         if (this.userProfile) {
-            this.userProfile.style.display = 'flex';
+            this.userProfile.classList.add('visible');
         }
+        
+        // Hide header sign-in button
+        const signInBtnHeader = document.getElementById('signInBtnHeader');
+        if (signInBtnHeader) {
+            signInBtnHeader.style.display = 'none';
+        }
+        
+        // Show sidebar
         if (this.sidebar) {
             this.sidebar.style.display = 'flex';
+            // Remove 'open' class on desktop
+            this.sidebar.classList.remove('open');
         }
         
         // Load chat history
@@ -224,11 +236,21 @@ class ChatApp {
         if (this.welcomeSection) {
             this.welcomeSection.style.display = 'flex';
         }
+        
+        // Hide user profile in header
         if (this.userProfile) {
-            this.userProfile.style.display = 'none';
+            this.userProfile.classList.remove('visible');
         }
+        
+        // Show header sign-in button
+        const signInBtnHeader = document.getElementById('signInBtnHeader');
+        if (signInBtnHeader) {
+            signInBtnHeader.style.display = 'flex';
+        }
+        
+        // Hide sidebar
         if (this.sidebar) {
-            this.sidebar.classList.remove('open');
+            this.sidebar.style.display = 'none';
         }
         if (this.chatHistoryList) {
             this.chatHistoryList.innerHTML = '';
