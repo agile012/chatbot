@@ -1,15 +1,13 @@
-import supabase from './supabase-client.js';
-
+// Simple working version without Supabase database
 class ChatApp {
     constructor() {
-        this.currentUser = null;
         this.messages = [];
-        this.isTyping = false;
         this.userId = this.generateUserId();
+        this.isTyping = false;
         
         this.initializeElements();
         this.attachEventListeners();
-        this.checkAuthState();
+        this.hideAuthModal(); // Start without auth for now
     }
 
     generateUserId() {
@@ -22,7 +20,6 @@ class ChatApp {
     }
 
     initializeElements() {
-        // Main chat elements
         this.messagesContainer = document.getElementById('messages');
         this.welcomeSection = document.getElementById('welcomeSection');
         this.typingIndicator = document.getElementById('typingIndicator');
@@ -31,16 +28,7 @@ class ChatApp {
         this.sendBtn = document.getElementById('sendBtn');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.toast = document.getElementById('toast');
-        
-        // Auth elements
         this.authModal = document.getElementById('authModal');
-        this.signInBtn = document.getElementById('signInBtn');
-        this.signOutBtn = document.getElementById('signOutBtn');
-        
-        // User profile elements
-        this.userProfile = document.getElementById('userProfile');
-        this.userName = document.getElementById('userName');
-        this.userAvatar = document.getElementById('userAvatar');
     }
 
     attachEventListeners() {
@@ -55,14 +43,6 @@ class ChatApp {
         // New chat button
         if (this.newChatBtn) {
             this.newChatBtn.addEventListener('click', () => this.startNewChat());
-        }
-
-        // Auth buttons
-        if (this.signInBtn) {
-            this.signInBtn.addEventListener('click', () => this.signInWithGoogle());
-        }
-        if (this.signOutBtn) {
-            this.signOutBtn.addEventListener('click', () => this.signOut());
         }
 
         // Quick action buttons
@@ -92,110 +72,6 @@ class ChatApp {
         }
     }
 
-    async checkAuthState() {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (user) {
-                this.handleSignIn(user);
-            } else {
-                this.showAuthModal();
-            }
-
-            // Listen for auth state changes
-            supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' && session?.user) {
-                    this.handleSignIn(session.user);
-                } else if (event === 'SIGNED_OUT') {
-                    this.handleSignOut();
-                }
-            });
-
-        } catch (error) {
-            console.error('Auth check error:', error);
-            this.showAuthModal();
-        }
-    }
-
-    async signInWithGoogle() {
-        try {
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin
-                }
-            });
-
-            if (error) throw error;
-
-        } catch (error) {
-            console.error('Sign in error:', error);
-            this.showToast('Failed to sign in. Please try again.', 'error');
-        }
-    }
-
-    async signOut() {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-            
-            this.handleSignOut();
-            this.showToast('Signed out successfully', 'success');
-
-        } catch (error) {
-            console.error('Sign out error:', error);
-            this.showToast('Failed to sign out', 'error');
-        }
-    }
-
-    handleSignIn(user) {
-        this.currentUser = user;
-        
-        // Hide auth modal
-        this.hideAuthModal();
-        
-        // Update UI with user info
-        if (this.userName) {
-            this.userName.textContent = user.user_metadata?.full_name || user.email;
-        }
-        if (this.userAvatar) {
-            this.userAvatar.src = user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=003d82&color=fff`;
-        }
-        if (this.userProfile) {
-            this.userProfile.style.display = 'flex';
-        }
-        
-        this.showToast('Welcome back!', 'success');
-    }
-
-    handleSignOut() {
-        this.currentUser = null;
-        this.messages = [];
-        
-        // Clear UI
-        if (this.messagesContainer) {
-            this.messagesContainer.innerHTML = '';
-        }
-        if (this.welcomeSection) {
-            this.welcomeSection.style.display = 'flex';
-        }
-        if (this.userProfile) {
-            this.userProfile.style.display = 'none';
-        }
-        
-        // Show auth modal
-        this.showAuthModal();
-    }
-
-    showAuthModal() {
-        if (this.authModal) {
-            this.authModal.style.display = 'flex';
-        }
-        if (this.chatForm) {
-            this.chatForm.style.display = 'none';
-        }
-    }
-
     hideAuthModal() {
         if (this.authModal) {
             this.authModal.style.display = 'none';
@@ -205,41 +81,15 @@ class ChatApp {
         }
     }
 
-    async startNewChat() {
-        if (!confirm('Start a new conversation? This will clear the current chat.')) return;
-        
-        try {
-            // Reset Dialogflow session
-            await fetch('/api/dialogflow/reset', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: this.userId
-                })
-            });
-
-            // Clear UI
-            this.messages = [];
-            if (this.messagesContainer) {
-                this.messagesContainer.innerHTML = '';
-            }
-            if (this.welcomeSection) {
-                this.welcomeSection.style.display = 'flex';
-            }
-            this.hideTypingIndicator();
-            
-            this.showToast('New conversation started', 'success');
-
-        } catch (error) {
-            console.error('Error starting new chat:', error);
-            this.showToast('Failed to start new chat', 'error');
+    autoResizeTextarea() {
+        if (this.messageInput) {
+            this.messageInput.style.height = 'auto';
+            this.messageInput.style.height = this.messageInput.scrollHeight + 'px';
         }
     }
 
     async handleSendMessage() {
-        const message = this.messageInput.value.trim();
+        const message = this.messageInput?.value.trim();
         
         if (!message || this.isTyping) return;
 
@@ -259,7 +109,7 @@ class ChatApp {
         this.showTypingIndicator();
 
         try {
-            // Send message to Dialogflow
+            // Send message to backend
             const response = await fetch('/api/dialogflow/message', {
                 method: 'POST',
                 headers: {
@@ -300,22 +150,14 @@ class ChatApp {
     }
 
     addMessage(text, sender) {
+        if (!this.messagesContainer) return;
+
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
         
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        
-        if (sender === 'user' && this.userAvatar && this.userAvatar.src) {
-            const img = document.createElement('img');
-            img.src = this.userAvatar.src;
-            img.alt = 'User';
-            avatar.appendChild(img);
-        } else if (sender === 'user') {
-            avatar.textContent = 'You';
-        } else {
-            avatar.textContent = '🤖';
-        }
+        avatar.textContent = sender === 'user' ? 'You' : '🤖';
         
         const content = document.createElement('div');
         content.className = 'message-content';
@@ -336,24 +178,15 @@ class ChatApp {
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(content);
         
-        if (this.messagesContainer) {
-            this.messagesContainer.appendChild(messageDiv);
-        }
+        this.messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
         
-        // Store message in memory
+        // Store message
         this.messages.push({
             text,
             sender,
             timestamp: Date.now()
         });
-    }
-
-    autoResizeTextarea() {
-        if (this.messageInput) {
-            this.messageInput.style.height = 'auto';
-            this.messageInput.style.height = this.messageInput.scrollHeight + 'px';
-        }
     }
 
     showTypingIndicator() {
@@ -386,15 +219,48 @@ class ChatApp {
         }, 100);
     }
 
-    showToast(message, type = 'info') {
-        if (this.toast) {
-            this.toast.textContent = message;
-            this.toast.className = `toast ${type} show`;
-            
-            setTimeout(() => {
-                this.toast.classList.remove('show');
-            }, 3000);
+    async startNewChat() {
+        if (confirm('Are you sure you want to start a new conversation? This will clear the current chat.')) {
+            try {
+                // Reset session on backend
+                await fetch('/api/dialogflow/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: this.userId
+                    })
+                });
+
+                // Clear UI
+                this.messages = [];
+                if (this.messagesContainer) {
+                    this.messagesContainer.innerHTML = '';
+                }
+                if (this.welcomeSection) {
+                    this.welcomeSection.style.display = 'flex';
+                }
+                this.hideTypingIndicator();
+                
+                this.showToast('New conversation started', 'success');
+
+            } catch (error) {
+                console.error('Error resetting chat:', error);
+                this.showToast('Failed to reset chat', 'error');
+            }
         }
+    }
+
+    showToast(message, type = 'info') {
+        if (!this.toast) return;
+        
+        this.toast.textContent = message;
+        this.toast.className = `toast ${type} show`;
+        
+        setTimeout(() => {
+            this.toast.classList.remove('show');
+        }, 3000);
     }
 }
 

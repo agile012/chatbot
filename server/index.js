@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const dialogflowRoutes = require('./routes/dialogflow');
+const chatRoutes = require('./routes/chat');
 const path = require('path');
 
 const app = express();
@@ -16,9 +17,28 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      scriptSrc: ["'self'"],
-      connectSrc: ["'self'"]
+      imgSrc: ["'self'", "data:", "https:", "https://*.googleusercontent.com", "https://ui-avatars.com"],
+      scriptSrc: [
+        "'self'", 
+        "https://cdn.jsdelivr.net",
+        "https://accounts.google.com",
+        "https://apis.google.com"
+      ],
+      scriptSrcElem: [
+        "'self'",
+        "https://cdn.jsdelivr.net"
+      ],
+      connectSrc: [
+        "'self'",
+        "https://lruhvniqyrdngltarfmq.supabase.co",
+        "wss://lruhvniqyrdngltarfmq.supabase.co",
+        "https://*.supabase.co",
+        "wss://*.supabase.co",
+        "https://accounts.google.com",
+        "https://*.googleapis.com"
+      ],
+      frameSrc: ["https://accounts.google.com"],
+      workerSrc: ["'self'", "blob:"]
     }
   }
 }));
@@ -43,6 +63,7 @@ app.use(express.static(path.join(__dirname, '../client')));
 
 // API routes
 app.use('/api/dialogflow', dialogflowRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
