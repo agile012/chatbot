@@ -73,19 +73,43 @@ class ChatApp {
             this.signOutBtn.addEventListener('click', () => this.signOut());
         }
 
-        // User profile button (dropdown menu)
+        // User profile menu toggle
         const userProfileBtn = document.getElementById('userProfileBtn');
-        const userProfileMenu = document.getElementById('userProfileMenu');
-        if (userProfileBtn && userProfileMenu) {
+        const profileMenu = document.getElementById('profileMenu');
+        if (userProfileBtn && profileMenu) {
             userProfileBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                userProfileMenu.classList.toggle('show');
+                profileMenu.classList.toggle('show');
+                
+                // Position the menu above the button
+                if (profileMenu.classList.contains('show')) {
+                    const btnRect = userProfileBtn.getBoundingClientRect();
+                    const menuWidth = 200;
+                    let leftPos = btnRect.left + (btnRect.width - menuWidth) / 2;
+                    
+                    // Ensure menu doesn't go off-screen
+                    if (leftPos < 10) {
+                        leftPos = 10;
+                    } else if (leftPos + menuWidth > window.innerWidth - 10) {
+                        leftPos = window.innerWidth - menuWidth - 10;
+                    }
+                    
+                    profileMenu.style.bottom = window.innerHeight - btnRect.top + 8 + 'px';
+                    profileMenu.style.left = leftPos + 'px';
+                }
             });
             
             // Close menu when clicking outside
             document.addEventListener('click', (e) => {
-                if (!userProfileBtn.contains(e.target) && !userProfileMenu.contains(e.target)) {
-                    userProfileMenu.classList.remove('show');
+                if (!userProfileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
+                    profileMenu.classList.remove('show');
+                }
+            });
+            
+            // Close menu when an item is clicked
+            profileMenu.addEventListener('click', (e) => {
+                if (e.target.closest('button')) {
+                    profileMenu.classList.remove('show');
                 }
             });
         }

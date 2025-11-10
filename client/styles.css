@@ -1509,7 +1509,7 @@ button, .quick-btn, .message-content, .input-wrapper {
         position: relative;
         left: 0 !important;
         top: 0;
-        height: auto;
+        height: 100vh;
         flex-shrink: 0;
     }
 }
@@ -1531,10 +1531,11 @@ button, .quick-btn, .message-content, .input-wrapper {
     background: var(--bg-sidebar);
     color: var(--text-white);
     display: flex;
+    flex-direction: column;
     gap: 8px;
     align-items: center;
     border-bottom: 1px solid var(--border-light);
-    min-height: 60px;
+    min-height: auto;
 }
 
 .sidebar-header h3 {
@@ -1555,7 +1556,7 @@ button, .quick-btn, .message-content, .input-wrapper {
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition-fast);
-    flex: 1;
+    width: 100%;
     justify-content: flex-start;
 }
 
@@ -1575,7 +1576,6 @@ button, .quick-btn, .message-content, .input-wrapper {
     .sidebar.open .new-chat-btn-sidebar {
         padding: 8px;
         border: none;
-        flex: none;
         width: 36px;
         height: 36px;
         justify-content: center;
@@ -1729,16 +1729,20 @@ button, .quick-btn, .message-content, .input-wrapper {
     padding: 12px;
     border-top: 1px solid var(--border-light);
     background: var(--bg-sidebar);
+    flex-shrink: 0;
 }
 
 /* User Profile Wrapper & Button */
 .user-profile-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
     position: relative;
-    display: none;
 }
 
 .user-profile-wrapper.visible {
-    display: block;
+    display: flex;
 }
 
 .user-profile-btn {
@@ -1779,23 +1783,25 @@ button, .quick-btn, .message-content, .input-wrapper {
     min-width: 0;
 }
 
-/* User Profile Menu (Dropdown) */
-.user-profile-menu {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    right: 0;
+/* Profile Dropdown Menu */
+.profile-menu {
+    position: fixed;
+    bottom: auto;
+    left: auto;
+    right: auto;
     background: var(--bg-secondary);
     border: 1px solid var(--border-light);
     border-radius: 8px;
-    min-width: 200px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
+    width: 200px;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
     display: none;
     flex-direction: column;
     overflow: hidden;
+    top: auto;
 }
 
-.user-profile-menu.show {
+.profile-menu.show {
     display: flex;
 }
 
@@ -1811,8 +1817,8 @@ button, .quick-btn, .message-content, .input-wrapper {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    text-align: left;
     width: 100%;
+    text-align: left;
 }
 
 .sign-out-btn:hover {
@@ -1824,10 +1830,16 @@ button, .quick-btn, .message-content, .input-wrapper {
     flex-shrink: 0;
 }
 
-/* Collapsed sidebar - show only avatar */
+/* Collapsed sidebar - show only avatar on profile button */
 @media (min-width: 769px) {
+    .sidebar.open {
+        height: 100vh;
+        width: 60px;
+    }
+    
     .sidebar.open .sidebar-footer {
         padding: 8px;
+        margin-top: auto;
     }
     
     .sidebar.open .user-profile-btn {
@@ -1837,6 +1849,13 @@ button, .quick-btn, .message-content, .input-wrapper {
         height: 40px;
         justify-content: center;
         border-radius: 6px;
+        border: none;
+        background: transparent;
+    }
+    
+    .sidebar.open .user-profile-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: transparent;
     }
     
     .sidebar.open .user-name {
