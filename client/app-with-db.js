@@ -73,6 +73,23 @@ class ChatApp {
             this.signOutBtn.addEventListener('click', () => this.signOut());
         }
 
+        // User profile button (dropdown menu)
+        const userProfileBtn = document.getElementById('userProfileBtn');
+        const userProfileMenu = document.getElementById('userProfileMenu');
+        if (userProfileBtn && userProfileMenu) {
+            userProfileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userProfileMenu.classList.toggle('show');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!userProfileBtn.contains(e.target) && !userProfileMenu.contains(e.target)) {
+                    userProfileMenu.classList.remove('show');
+                }
+            });
+        }
+
         // Header sign in button
         const signInBtnHeader = document.getElementById('signInBtnHeader');
         if (signInBtnHeader) {

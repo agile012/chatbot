@@ -58,16 +58,38 @@
         <!-- Sidebar for Chat History (hidden until signed in) -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h3>Chat History</h3>
                 <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M15 18l-6-6 6-6"/>
                     </svg>
                 </button>
+                <button class="new-chat-btn-sidebar" id="newChatBtn" title="Start New Conversation">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <span>New Chat</span>
+                </button>
             </div>
             <div class="sidebar-content">
                 <div class="chat-history-list" id="chatHistoryList">
                     <div class="empty-history">Sign in to see your chat history</div>
+                </div>
+            </div>
+            <!-- User Profile at bottom of sidebar -->
+            <div class="sidebar-footer">
+                <div class="user-profile-wrapper" id="userProfile">
+                    <button class="user-profile-btn" id="userProfileBtn" title="User Profile">
+                        <img id="userAvatar" class="user-avatar" alt="User Avatar">
+                        <span id="userName" class="user-name">User</span>
+                    </button>
+                    <div class="user-profile-menu" id="userProfileMenu">
+                        <button class="sign-out-btn" id="signOutBtn" title="Sign Out">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                            </svg>
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </aside>
@@ -83,36 +105,9 @@
                                 <path d="M3 12h18M3 6h18M3 18h18"/>
                             </svg>
                         </button>
-                        <div class="logo-circle">
-                            <span class="logo-text">IIMA</span>
+                        <div class="header-title">
+                            <h1>IIMA Student Assistant</h1>
                         </div>
-                        <div class="header-text">
-                            <h1>IIM Ahmedabad</h1>
-                            <p>Student Support & Information Assistant</p>
-                        </div>
-                    </div>
-                    <div class="header-actions">
-                        <button class="new-chat-btn" id="newChatBtn" title="Start New Conversation">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5v14M5 12h14"/>
-                            </svg>
-                            <span>New Chat</span>
-                        </button>
-
-                        <!-- User Profile (shown when signed in) -->
-                        <div class="user-profile" id="userProfile">
-                            <img id="userAvatar" class="user-avatar" alt="User Avatar">
-                            <span id="userName" class="user-name">User</span>
-                            <button class="sign-out-btn" id="signOutBtn" title="Sign Out">Sign Out</button>
-                        </div>
-
-                        <!-- Sign In Button (shown when signed out) -->
-                        <button class="sign-in-btn" id="signInBtnHeader" title="Sign In" style="display: none;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
-                            </svg>
-                            <span>Sign In</span>
-                        </button>
                     </div>
                 </div>
             </header>
@@ -123,7 +118,7 @@
                 <div class="welcome-section" id="welcomeSection">
                     <div class="welcome-content">
                         <div class="welcome-icon">🤖</div>
-                        <h2>IIM Ahmedabad Assistant</h2>
+                        <h2>IIMA Student Assistant</h2>
                         <p>Ask me anything about programs, admissions, campus life, and more</p>
                     </div>
                 </div>
