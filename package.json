@@ -1,0 +1,35 @@
+{
+  "name": "iim-ahmedabad-chatbot",
+  "version": "1.0.0",
+  "description": "IIM Ahmedabad Student Support Chatbot powered by Dialogflow CX",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "install-all": "npm install && cd client && npm install"
+  },
+  "keywords": [
+    "chatbot",
+    "dialogflow",
+    "iim-ahmedabad",
+    "student-support"
+  ],
+  "author": "IIM Ahmedabad",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/dialogflow-cx": "^4.6.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.1",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

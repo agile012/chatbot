@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIM Ahmedabad - Student Support Chatbot</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-circle">
+                        <span class="logo-text">IIMA</span>
+                    </div>
+                    <div class="header-text">
+                        <h1>IIM Ahmedabad</h1>
+                        <p>Student Support & Information Assistant</p>
+                    </div>
+                </div>
+                <button class="new-chat-btn" id="newChatBtn" title="Start New Conversation">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <span>New Chat</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Chat Area -->
+        <main class="chat-container">
+            <!-- Welcome Message -->
+            <div class="welcome-section" id="welcomeSection">
+                <div class="welcome-content">
+                    <div class="welcome-icon">
+                        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h2>Welcome to IIM Ahmedabad</h2>
+                    <p>I'm your intelligent assistant, here to help you with comprehensive information about our programs, admissions, campus facilities, academic resources, events, and much more. How may I assist you today?</p>
+                    
+                    <div class="quick-actions">
+                        <h3>Popular Questions</h3>
+                        <div class="quick-buttons">
+                            <button class="quick-btn" data-message="What programs and courses does IIM Ahmedabad offer?">
+                                📚 Programs & Courses
+                            </button>
+                            <button class="quick-btn" data-message="Tell me about the admission process and requirements">
+                                📝 Admissions Process
+                            </button>
+                            <button class="quick-btn" data-message="What facilities and amenities are available on campus?">
+                                🏛️ Campus & Facilities
+                            </button>
+                            <button class="quick-btn" data-message="How can I contact the administration or get support?">
+                                📞 Contact & Support
+                            </button>
+                            <button class="quick-btn" data-message="Tell me about student life and activities at IIMA">
+                                🎓 Student Life
+                            </button>
+                            <button class="quick-btn" data-message="What are the latest events and announcements?">
+                                📅 Events & News
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="messages" id="messages"></div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </main>
+
+        <!-- Input Area -->
+        <footer class="input-area">
+            <form class="input-form" id="chatForm">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        class="message-input" 
+                        placeholder="Type your message here..."
+                        rows="1"
+                        maxlength="1000"
+                    ></textarea>
+                    <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+            <div class="input-footer">
+                <small>Powered by Google Dialogflow CX • IIM Ahmedabad © 2025 • <a href="https://www.iima.ac.in" target="_blank" style="color: inherit; text-decoration: none;">Official Website</a></small>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
