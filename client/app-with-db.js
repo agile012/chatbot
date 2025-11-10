@@ -213,7 +213,7 @@ class ChatApp {
         // Load chat history
         try {
             await this.loadChatHistory();
-            await this.createNewSession();
+            // Don't create a new session here - wait for first message
         } catch (error) {
             console.log('Database not set up yet:', error);
             this.showToast('Database not configured. Using guest mode.', 'info');
@@ -469,6 +469,16 @@ class ChatApp {
         const message = this.messageInput.value.trim();
         
         if (!message || this.isTyping) return;
+
+        // Create a new session on first message if needed
+        if (this.useDatabase && this.currentUser && !this.currentSessionId) {
+            try {
+                await this.createNewSession();
+            } catch (error) {
+                console.error('Failed to create session:', error);
+                this.useDatabase = false;
+            }
+        }
 
         // Hide welcome section on first message
         if (this.welcomeSection) {
