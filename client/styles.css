@@ -45,6 +45,15 @@
     box-sizing: border-box;
 }
 
+/* Remove default focus outline and add custom focus style */
+button, input, textarea, select, a {
+    outline: none;
+}
+
+button:focus, input:focus, textarea:focus, select:focus {
+    outline: none;
+}
+
 /* Mobile-only elements - hidden on desktop */
 .mobile-only {
     display: none !important;
@@ -1527,15 +1536,38 @@ button, .quick-btn, .message-content, .input-wrapper {
 }
 
 .sidebar-header {
-    padding: 16px 12px;
+    padding: 12px;
     background: var(--bg-sidebar);
     color: var(--text-white);
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    align-items: center;
+    gap: 12px;
+    align-items: stretch;
     border-bottom: 1px solid var(--border-light);
     min-height: auto;
+}
+
+.sidebar-logo-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    border-radius: 8px;
+}
+
+.sidebar-logo-toggle:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .sidebar-header h3 {
@@ -1565,32 +1597,33 @@ button, .quick-btn, .message-content, .input-wrapper {
     border-color: var(--primary-light);
 }
 
-/* When sidebar is collapsed on desktop, hide new chat text */
+/* When sidebar is collapsed on desktop, hide text */
 @media (min-width: 769px) {
     .sidebar.open .sidebar-header {
-        flex-direction: column;
-        padding: 12px;
-        gap: 12px;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .sidebar.open .sidebar-logo-toggle {
+        padding: 8px;
+        gap: 0;
+        justify-content: center;
+    }
+    
+    .sidebar.open .sidebar-title {
+        display: none;
     }
     
     .sidebar.open .new-chat-btn-sidebar {
         padding: 8px;
         border: none;
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         justify-content: center;
     }
     
     .sidebar.open .new-chat-btn-sidebar span {
         display: none;
-    }
-    
-    .sidebar.open .sidebar-toggle {
-        width: 36px;
-        height: 36px;
-        border: none;
-        background: transparent;
-        border-radius: 6px;
     }
 }
 
