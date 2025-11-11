@@ -8,6 +8,7 @@ class ChatApp {
         this.isTyping = false;
         this.userId = this.generateUserId();
         this.useDatabase = false; // Will be enabled after successful auth
+        this.isCreatingSession = false; // Prevent multiple simultaneous session creations
         
         this.initializeElements();
         this.attachEventListeners();
@@ -435,7 +436,6 @@ class ChatApp {
 
             this.currentSessionId = sessionId;
             await this.loadChatHistory();
-            this.toggleSidebar();
 
         } catch (error) {
             console.error('Error loading session:', error);
@@ -445,7 +445,8 @@ class ChatApp {
 
     async deleteSession(sessionId, event) {
         if (event) event.stopPropagation();
-        if (!confirm('Delete this conversation?')) return;
+        const confirmed = await this.showConfirmDialog('Delete Conversation?', 'Are you sure you want to delete this conversation? This action cannot be undone.');
+        if (!confirmed) return;
 
         try {
             const userId = this.currentUser.id;
@@ -470,6 +471,9 @@ class ChatApp {
 
     async createNewSession() {
         if (!this.useDatabase || !this.currentUser) return;
+        if (this.isCreatingSession) return; // Prevent duplicate session creation
+        
+        this.isCreatingSession = true;
 
         try {
             const response = await fetch('/api/chat/sessions', {
@@ -486,51 +490,54 @@ class ChatApp {
             if (!response.ok) throw new Error('Failed to create session');
 
             const sessionData = await response.json();
-            this.currentSessionId = sessionData.id;
+            this.currentSessionId = sessionData.session?.id || sessionData.id;
             
             await this.loadChatHistory();
 
         } catch (error) {
             console.error('Error creating session:', error);
             this.useDatabase = false;
+        } finally {
+            this.isCreatingSession = false;
         }
     }
 
     async startNewChat() {
-        if (confirm('Start a new conversation? This will clear the current chat.')) {
-            try {
-                // Reset Dialogflow session
-                await fetch('/api/dialogflow/reset', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        userId: this.currentUser?.id || this.userId
-                    })
-                });
+        const confirmed = await this.showConfirmDialog('Start New Conversation?', 'This will clear the current chat and start a fresh conversation.');
+        if (!confirmed) return;
 
-                // Clear UI
-                this.messages = [];
-                if (this.messagesContainer) {
-                    this.messagesContainer.innerHTML = '';
-                }
-                if (this.welcomeSection) {
-                    this.welcomeSection.style.display = 'flex';
-                }
-                this.hideTypingIndicator();
-                
-                // Create new session if using database
-                if (this.useDatabase && this.currentUser) {
-                    await this.createNewSession();
-                }
-                
-                this.showToast('New conversation started', 'success');
+        try {
+            // Reset Dialogflow session
+            await fetch('/api/dialogflow/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: this.currentUser?.id || this.userId
+                })
+            });
 
-            } catch (error) {
-                console.error('Error starting new chat:', error);
-                this.showToast('Failed to start new chat', 'error');
+            // Clear UI
+            this.messages = [];
+            if (this.messagesContainer) {
+                this.messagesContainer.innerHTML = '';
             }
+            if (this.welcomeSection) {
+                this.welcomeSection.style.display = 'flex';
+            }
+            this.hideTypingIndicator();
+            
+            // Create new session if using database
+            if (this.useDatabase && this.currentUser) {
+                await this.createNewSession();
+            }
+            
+            this.showToast('New conversation started', 'success');
+
+        } catch (error) {
+            console.error('Error starting new chat:', error);
+            this.showToast('Failed to start new chat', 'error');
         }
     }
 
@@ -797,6 +804,66 @@ class ChatApp {
         
         // Older
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    showConfirmDialog(title, message) {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('confirmDialogOverlay');
+            const dialog = document.getElementById('confirmDialog');
+            const titleElem = document.getElementById('confirmTitle');
+            const messageElem = document.getElementById('confirmMessage');
+            const cancelBtn = document.getElementById('confirmCancel');
+            const confirmBtn = document.getElementById('confirmConfirm');
+
+            if (!overlay || !titleElem || !messageElem || !cancelBtn || !confirmBtn) {
+                // Fallback to native confirm if elements not found
+                resolve(confirm(`${title}\n\n${message}`));
+                return;
+            }
+
+            titleElem.textContent = title;
+            messageElem.textContent = message;
+
+            const handleCancel = () => {
+                overlay.classList.remove('show');
+                cleanup();
+                resolve(false);
+            };
+
+            const handleConfirm = () => {
+                overlay.classList.remove('show');
+                cleanup();
+                resolve(true);
+            };
+
+            const handleOverlayClick = (e) => {
+                // Close if clicking outside the dialog
+                if (e.target === overlay) {
+                    handleCancel();
+                }
+            };
+
+            const cleanup = () => {
+                cancelBtn.removeEventListener('click', handleCancel);
+                confirmBtn.removeEventListener('click', handleConfirm);
+                overlay.removeEventListener('click', handleOverlayClick);
+                document.removeEventListener('keydown', handleEscape);
+            };
+
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    handleCancel();
+                }
+            };
+
+            cancelBtn.addEventListener('click', handleCancel);
+            confirmBtn.addEventListener('click', handleConfirm);
+            overlay.addEventListener('click', handleOverlayClick);
+            document.addEventListener('keydown', handleEscape);
+
+            overlay.classList.add('show');
+            confirmBtn.focus();
+        });
     }
 }
 

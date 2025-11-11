@@ -6,6 +6,27 @@ class ChatHistoryService {
    */
   async createSession(userId, title = 'New Conversation') {
     try {
+      // First, check if user has 10 or more sessions
+      const { data: sessions, error: fetchError } = await supabase
+        .from('chat_sessions')
+        .select('id')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+
+      if (fetchError) throw fetchError;
+
+      // If 10 or more sessions exist, delete the oldest one
+      if (sessions && sessions.length >= 10) {
+        const oldestSession = sessions[0]; // Oldest is first due to ascending order
+        const { error: deleteError } = await supabase
+          .from('chat_sessions')
+          .delete()
+          .eq('id', oldestSession.id);
+
+        if (deleteError) throw deleteError;
+      }
+
+      // Now create the new session
       const { data, error } = await supabase
         .from('chat_sessions')
         .insert([
