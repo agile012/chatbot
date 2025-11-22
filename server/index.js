@@ -14,19 +14,23 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "https://*.googleusercontent.com", "https://ui-avatars.com"],
+      defaultSrc: ["'self'", "blob:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "blob:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "blob:"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "https://*.googleusercontent.com", "https://ui-avatars.com"],
       scriptSrc: [
-        "'self'", 
+        "'self'",
+        "'unsafe-inline'",
         "https://cdn.jsdelivr.net",
         "https://accounts.google.com",
-        "https://apis.google.com"
+        "https://apis.google.com",
+        "blob:"
       ],
       scriptSrcElem: [
         "'self'",
-        "https://cdn.jsdelivr.net"
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+        "blob:"
       ],
       connectSrc: [
         "'self'",
@@ -46,8 +50,8 @@ app.use(helmet({
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? 'https://your-domain.com' 
-    : 'http://localhost:3000',
+    ? (process.env.ALLOWED_ORIGIN || 'https://your-domain.com')
+    : true, // Allow all origins in development
   credentials: true
 }));
 
