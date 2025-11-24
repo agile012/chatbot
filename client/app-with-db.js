@@ -207,10 +207,18 @@ class ChatApp {
 
     async signInWithGoogle() {
         try {
+            // Explicit production domain redirect for reverse proxy scenarios
+            let redirectTo = window.location.origin;
+            
+            if (window.location.hostname.includes('chatbot.iima.ac.in') || window.location.hostname.includes('iima.ac.in')) {
+                redirectTo = `${window.location.protocol}//${window.location.host}`;
+                console.log('📍 Production domain detected, redirect URL:', redirectTo);
+            }
+            
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin
+                    redirectTo: redirectTo
                 }
             });
 
