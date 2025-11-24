@@ -55,8 +55,14 @@ class DialogflowService {
    */
   async detectIntent(text, userId = 'default-user') {
     try {
+      console.log('🤖 [Dialogflow] Starting detectIntent');
+      console.log('📝 [Dialogflow] Message:', text);
+      console.log('👤 [Dialogflow] User ID:', userId);
+      console.log('🔧 [Dialogflow] Config - Project:', this.projectId, 'Location:', this.location, 'Agent:', this.agentId);
+      
       const sessionId = this.getSessionId(userId);
       const sessionPath = this.getSessionPath(sessionId);
+      console.log('📍 [Dialogflow] Session path:', sessionPath);
 
       // Construct the request
       const request = {
@@ -69,10 +75,10 @@ class DialogflowService {
         },
       };
 
+      console.log('📤 [Dialogflow] Sending request to Dialogflow...');
       // Send request to Dialogflow CX
       const [response] = await this.client.detectIntent(request);
-      
-      // Extract response messages
+      console.log('✅ [Dialogflow] Got response from Dialogflow');
       const messages = [];
       if (response.queryResult.responseMessages) {
         for (const message of response.queryResult.responseMessages) {
@@ -100,7 +106,20 @@ class DialogflowService {
       };
 
     } catch (error) {
-      console.error('Error detecting intent:', error);
+      console.error('❌ [Dialogflow] Error detecting intent:', error.message);
+      console.error('❌ [Dialogflow] Error stack:', error.stack);
+      console.error('❌ [Dialogflow] Error code:', error.code);
+      console.error('❌ [Dialogflow] Full error:', error);
+      
+      // Provide specific error messages
+      if (error.code === 3) {
+        throw new Error('Dialogflow: Not found - check Project ID, Location, and Agent ID');
+      } else if (error.code === 16) {
+        throw new Error('Dialogflow: Authentication failed - check Google credentials');
+      } else if (error.code === 14) {
+        throw new Error('Dialogflow: Service unavailable - check network connection');
+      }
+      
       throw new Error(`Failed to process message: ${error.message}`);
     }
   }
