@@ -150,6 +150,15 @@ class ChatApp {
     }
 
     handleSignIn(user) {
+        // Validate email domain - only @iima.ac.in allowed
+        const email = user.email || '';
+        if (!email.endsWith('@iima.ac.in')) {
+            supabase.auth.signOut();
+            this.handleSignOut();
+            this.showToast('Please use your official IIMA email (@iima.ac.in)', 'error');
+            return;
+        }
+        
         this.currentUser = user;
         
         // Hide auth modal

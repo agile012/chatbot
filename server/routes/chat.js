@@ -3,6 +3,49 @@ const router = express.Router();
 const chatHistoryService = require('../services/chatHistory');
 
 /**
+ * Middleware to validate email domain
+ * Ensures only @iima.ac.in emails can access chat endpoints
+ */
+const validateEmailDomain = async (req, res, next) => {
+  try {
+    const userId = req.body?.userId || req.query?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID is required' });
+    }
+
+    // Get user details from Supabase to validate email domain
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
+
+    const { data: { user }, error } = await supabase.auth.admin.getUserById(userId);
+    
+    if (error || !user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    // Validate email domain
+    if (!user.email || !user.email.endsWith('@iima.ac.in')) {
+      return res.status(403).json({ 
+        error: 'Access denied. Only @iima.ac.in email addresses are allowed.' 
+      });
+    }
+
+    // User is valid, proceed
+    next();
+  } catch (err) {
+    console.error('Email validation error:', err);
+    return res.status(500).json({ error: 'Authentication validation failed' });
+  }
+};
+
+// Apply email validation to all chat routes
+router.use(validateEmailDomain);
+
+/**
  * POST /api/chat/sessions
  * Create a new chat session
  */
