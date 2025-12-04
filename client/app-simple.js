@@ -28,7 +28,12 @@ class ChatApp {
         this.sendBtn = document.getElementById('sendBtn');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.toast = document.getElementById('toast');
+        this.inputArea = document.getElementById('inputArea');
         this.authModal = document.getElementById('authModal');
+        // Show input area by default in simple mode
+        if (this.inputArea) {
+            this.inputArea.style.display = 'flex';
+        }
     }
 
     attachEventListeners() {

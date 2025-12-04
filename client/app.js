@@ -31,6 +31,7 @@ class ChatApp {
         this.sendBtn = document.getElementById('sendBtn');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.toast = document.getElementById('toast');
+        this.inputArea = document.getElementById('inputArea');
         
         // Auth elements
         this.authModal = document.getElementById('authModal');
@@ -154,6 +155,16 @@ class ChatApp {
         // Hide auth modal
         this.hideAuthModal();
         
+        // Show input area
+        if (this.inputArea) {
+            this.inputArea.style.display = 'flex';
+        }
+        
+        // Hide welcome section
+        if (this.welcomeSection) {
+            this.welcomeSection.style.display = 'none';
+        }
+        
         // Update UI with user info
         if (this.userName) {
             this.userName.textContent = user.user_metadata?.full_name || user.email;
@@ -171,6 +182,11 @@ class ChatApp {
     handleSignOut() {
         this.currentUser = null;
         this.messages = [];
+        
+        // Hide input area
+        if (this.inputArea) {
+            this.inputArea.style.display = 'none';
+        }
         
         // Clear UI
         if (this.messagesContainer) {
