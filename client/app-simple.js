@@ -164,7 +164,32 @@ class ChatApp {
         
         const messageText = document.createElement('div');
         messageText.className = 'message-text';
-        messageText.textContent = text;
+
+        // Render Markdown -> HTML, sanitize with DOMPurify if available
+        try {
+            let html = text;
+            if (typeof marked !== 'undefined') {
+                html = typeof marked.parse === 'function' ? marked.parse(text) : marked(text);
+            } else {
+                html = text.replace(/\n/g, '<br>');
+            }
+
+            if (typeof DOMPurify !== 'undefined') {
+                html = DOMPurify.sanitize(html, {ALLOWED_ATTR: ['href', 'target', 'rel']});
+            }
+
+            messageText.innerHTML = html;
+
+            // Ensure external links open safely
+            const anchors = messageText.querySelectorAll('a');
+            anchors.forEach(a => {
+                if (!a.target) a.target = '_blank';
+                a.rel = a.rel ? a.rel + ' noopener noreferrer' : 'noopener noreferrer';
+            });
+
+        } catch (e) {
+            messageText.textContent = text;
+        }
         
         const time = document.createElement('div');
         time.className = 'message-time';
