@@ -178,7 +178,7 @@ class ChatApp {
                 
                 const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
                 if (sidebarSignInBtn) {
-                    sidebarSignInBtn.classList.add('show');
+                    sidebarSignInBtn.classList.remove('hidden');
                 }
             }
 
@@ -201,12 +201,13 @@ class ChatApp {
             
             const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
             if (sidebarSignInBtn) {
-                sidebarSignInBtn.classList.add('show');
+                sidebarSignInBtn.classList.remove('hidden');
             }
         }
     }
 
     async signInWithGoogle() {
+        console.log('Sign in initiated');
         try {
             // Explicit production domain redirect for reverse proxy scenarios
             let redirectTo = window.location.origin;
@@ -290,7 +291,7 @@ class ChatApp {
         // Hide sidebar sign-in button
         const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
         if (sidebarSignInBtn) {
-            sidebarSignInBtn.classList.remove('show');
+            sidebarSignInBtn.classList.add('hidden');
         }
         
         // Hide header sign-in button
@@ -346,7 +347,7 @@ class ChatApp {
         // Show sidebar sign-in button
         const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
         if (sidebarSignInBtn) {
-            sidebarSignInBtn.classList.add('show');
+            sidebarSignInBtn.classList.remove('hidden');
         }
         
         // Show header sign-in button
@@ -932,6 +933,18 @@ class ChatApp {
 }
 
 // Initialize the chat app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.chatApp = new ChatApp();
-});
+const initChatApp = () => {
+    console.log('Initializing ChatApp...');
+    try {
+        window.chatApp = new ChatApp();
+        console.log('ChatApp initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize ChatApp:', error);
+    }
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChatApp);
+} else {
+    initChatApp();
+}

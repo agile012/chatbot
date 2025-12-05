@@ -190,6 +190,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+    <!-- Load Supabase from CDN (UMD build) to avoid ESM issues -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="app-with-db.js"></script>
+    <script>
+        // Error handler for script loading failures
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'SCRIPT') {
+                console.error('Script load error:', e.target.src);
+                // Only alert for our main app script
+                if (e.target.src && e.target.src.includes('app-with-db.js')) {
+                    const toast = document.getElementById('toast');
+                    if (toast) {
+                        toast.textContent = 'Failed to load application. Please check your connection.';
+                        toast.className = 'toast show error';
+                        setTimeout(() => { toast.className = 'toast'; }, 5000);
+                    }
+                }
+            }
+        }, true);
+    </script>
 </body>
 </html>

@@ -1,9 +1,42 @@
 // Supabase Client Configuration
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+// Using the global 'supabase' object loaded via script tag in index.html
+// This avoids issues with ESM imports from CDNs
 
 const SUPABASE_URL = 'https://lruhvniqyrdngltarfmq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxydWh2bmlxeXJkbmdsdGFyZm1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MDMzNDcsImV4cCI6MjA3ODM3OTM0N30.dntOb-6eWK8VyF3vqgVYpaGPh5jF5SHxq7g3Q1VcSpo';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase;
+
+try {
+    if (window.supabase && window.supabase.createClient) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        console.error('Supabase library not found on window object');
+        // Fallback or mock to prevent crash, though functionality will be limited
+        supabase = {
+            auth: {
+                onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+                getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+                getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+                signInWithOAuth: () => Promise.resolve({ error: new Error('Supabase not initialized') }),
+                signOut: () => Promise.resolve({ error: null })
+            },
+            from: () => ({
+                select: () => ({
+                    eq: () => ({
+                        order: () => Promise.resolve({ data: [], error: null }),
+                        single: () => Promise.resolve({ data: null, error: null })
+                    }),
+                    order: () => Promise.resolve({ data: [], error: null })
+                }),
+                insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }),
+                update: () => ({ eq: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }) }),
+                delete: () => ({ eq: () => Promise.resolve({ error: null }) })
+            })
+        };
+    }
+} catch (error) {
+    console.error('Error initializing Supabase client:', error);
+}
 
 export default supabase;

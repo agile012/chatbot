@@ -1966,7 +1966,7 @@ button, .quick-btn, .message-content, .input-wrapper {
 
 /* Sign In Button for Sidebar */
 .sidebar-signin-btn {
-    display: none;
+    display: flex;
     align-items: center;
     gap: 10px;
     padding: 8px 12px;
@@ -1981,8 +1981,8 @@ button, .quick-btn, .message-content, .input-wrapper {
     border-radius: 8px;
 }
 
-.sidebar-signin-btn.show {
-    display: flex;
+.sidebar-signin-btn.hidden {
+    display: none !important;
 }
 
 .sidebar-signin-btn:hover {
