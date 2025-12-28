@@ -7,6 +7,9 @@ client/node_modules/
 .env.local
 .env.*.local
 
+# Explicitly ignore local service account JSONs
+iimachatbot-542362f8fdae.json
+
 # Google credentials
 *.json
 !package.json
