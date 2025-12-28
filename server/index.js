@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const dialogflowRoutes = require('./routes/dialogflow');
 const chatRoutes = require('./routes/chat');
 const path = require('path');
@@ -58,9 +59,18 @@ app.use(cors({
   credentials: true
 }));
 
-// Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body parsing middleware with size limits to mitigate large payload attacks
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Rate limiter for API endpoints
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use('/api/', apiLimiter);
 
 // Compression middleware
 app.use(compression());
@@ -88,7 +98,12 @@ app.get('*', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('Error:', err.stack);
+  } else {
+    console.error('Error:', err.message);
+  }
+
   res.status(err.status || 500).json({
     error: {
       message: err.message || 'Internal Server Error',
