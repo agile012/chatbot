@@ -51,13 +51,43 @@ app.use(helmet({
   }
 }));
 
-// CORS configuration
+// CORS configuration - strict allowlist (fixes Misconfigured CORS vulnerability)
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['https://chatbot.iima.ac.in'];
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? (process.env.ALLOWED_ORIGIN || 'https://your-domain.com')
-    : true, // Allow all origins in development
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // In development, allow localhost
+    if (process.env.NODE_ENV !== 'production' && 
+        (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1'))) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
+
+// Cookie security middleware (fixes HttpOnly, Secure, SameSite vulnerabilities)
+app.use((req, res, next) => {
+  // Override res.cookie to always set secure cookie attributes
+  const originalCookie = res.cookie.bind(res);
+  res.cookie = function(name, value, options = {}) {
+    const secureOptions = {
+      ...options,
+      httpOnly: options.httpOnly !== false, // Default true
+      secure: process.env.NODE_ENV === 'production', // Secure in production
+      sameSite: options.sameSite || 'Strict' // Default Strict
+    };
+    return originalCookie(name, value, secureOptions);
+  };
+  next();
+});
 
 // Body parsing middleware with size limits to mitigate large payload attacks
 app.use(express.json({ limit: '10kb' }));
