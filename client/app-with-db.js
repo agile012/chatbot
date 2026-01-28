@@ -9,6 +9,7 @@ class ChatApp {
         this.userId = this.generateUserId();
         this.useDatabase = false; // Will be enabled after successful auth
         this.isCreatingSession = false; // Prevent multiple simultaneous session creations
+        this.isSigningIn = false; // Prevent duplicate sign-in processing
         
         this.initializeElements();
         this.attachEventListeners();
@@ -165,40 +166,47 @@ class ChatApp {
 
     async checkAuthState() {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            // Get current session (this also handles OAuth redirects automatically)
+            const { data: { session }, error } = await supabase.auth.getSession();
             
-            if (user) {
-                await this.handleSignIn(user);
+            if (error) {
+                console.error('Error getting session:', error);
+            }
+            
+            if (session?.user) {
+                console.log('User session found:', session.user.email);
+                await this.handleSignIn(session.user);
             } else {
-                // Show Sign In buttons for unauthenticated users
-                const signInBtnHeader = document.getElementById('signInBtnHeader');
-                if (signInBtnHeader) {
-                    signInBtnHeader.style.display = 'flex';
-                }
-                
+                console.log('No user session found');
+                // Show Sign In button in sidebar for unauthenticated users
                 const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
                 if (sidebarSignInBtn) {
                     sidebarSignInBtn.classList.remove('hidden');
                 }
+                
+                // Hide user profile
+                if (this.userProfile) {
+                    this.userProfile.classList.remove('visible');
+                }
             }
 
-            // Listen for auth state changes
+            // Listen for auth state changes (only process if not already signed in)
             supabase.auth.onAuthStateChange(async (event, session) => {
+                console.log('Auth state changed:', event);
+                
                 if (event === 'SIGNED_IN' && session?.user) {
-                    await this.handleSignIn(session.user);
+                    // Prevent duplicate sign-in processing
+                    if (!this.isSigningIn && !this.currentUser) {
+                        await this.handleSignIn(session.user);
+                    }
                 } else if (event === 'SIGNED_OUT') {
                     this.handleSignOut();
                 }
             });
 
         } catch (error) {
-            console.log('Auth not available, using guest mode');
-            // Show Sign In buttons even if Supabase is unavailable
-            const signInBtnHeader = document.getElementById('signInBtnHeader');
-            if (signInBtnHeader) {
-                signInBtnHeader.style.display = 'flex';
-            }
-            
+            console.error('Auth check error:', error);
+            // Show Sign In button in sidebar even if Supabase is unavailable
             const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
             if (sidebarSignInBtn) {
                 sidebarSignInBtn.classList.remove('hidden');
@@ -217,6 +225,8 @@ class ChatApp {
                 console.log('📍 Production domain detected, redirect URL:', redirectTo);
             }
             
+            console.log('Starting OAuth with redirect:', redirectTo);
+            
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
@@ -232,7 +242,7 @@ class ChatApp {
 
         } catch (error) {
             console.error('Sign in error:', error);
-            this.showToast('Sign in not configured yet', 'error');
+            this.showToast('Sign in failed. Please try again.', 'error');
         }
     }
 
@@ -249,55 +259,64 @@ class ChatApp {
     }
 
     async handleSignIn(user) {
-        // Validate email domain - only @iima.ac.in allowed
-        const email = user.email || '';
-        if (!email.endsWith('@iima.ac.in')) {
-            await supabase.auth.signOut();
-            this.handleSignOut();
-            this.showToast('Please use your official IIMA email (@iima.ac.in)', 'error');
+        // Prevent duplicate sign-in processing
+        if (this.isSigningIn || (this.currentUser && this.currentUser.id === user.id)) {
+            console.log('Already signed in or signing in, skipping');
             return;
         }
         
-        this.currentUser = user;
-        this.useDatabase = true;
+        this.isSigningIn = true;
         
-        // Hide auth modal
-        this.hideAuthModal();
-        
-        // Show input area
-        if (this.inputArea) {
-            this.inputArea.style.display = 'flex';
-        }
-        
-        // Hide welcome section when logged in
-        if (this.welcomeSection) {
-            this.welcomeSection.style.display = 'none';
-        }
-        
-        // Update UI with user info
-        if (this.userName) {
-            this.userName.textContent = user.user_metadata?.full_name || user.email;
-        }
-        if (this.userAvatar) {
-            this.userAvatar.src = user.user_metadata?.avatar_url || 
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=003d82&color=fff`;
-        }
-        
-        // Show user profile in header
-        if (this.userProfile) {
-            this.userProfile.classList.add('visible');
-        }
-        
-        // Hide sidebar sign-in button
-        const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
-        if (sidebarSignInBtn) {
-            sidebarSignInBtn.classList.add('hidden');
-        }
-        
-        // Hide header sign-in button
-        const signInBtnHeader = document.getElementById('signInBtnHeader');
-        if (signInBtnHeader) {
-            signInBtnHeader.style.display = 'none';
+        try {
+            // Validate email domain - only @iima.ac.in allowed
+            const email = user.email || '';
+            if (!email.endsWith('@iima.ac.in')) {
+                await supabase.auth.signOut();
+                this.handleSignOut();
+                this.showToast('Please use your official IIMA email (@iima.ac.in)', 'error');
+                return;
+            }
+            
+            this.currentUser = user;
+            this.useDatabase = true;
+            
+            // Hide auth modal
+            this.hideAuthModal();
+            
+            // Show input area
+            if (this.inputArea) {
+                this.inputArea.style.display = 'flex';
+            }
+            
+            // Hide welcome section when logged in
+            if (this.welcomeSection) {
+                this.welcomeSection.style.display = 'none';
+            }
+            
+            // Update UI with user info
+            if (this.userName) {
+                this.userName.textContent = user.user_metadata?.full_name || user.email;
+            }
+            if (this.userAvatar) {
+                this.userAvatar.src = user.user_metadata?.avatar_url || 
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=003d82&color=fff`;
+            }
+            
+            // Show user profile in header
+            if (this.userProfile) {
+                this.userProfile.classList.add('visible');
+            }
+            
+            // Hide sidebar sign-in button
+            const sidebarSignInBtn = document.getElementById('sidebarSignInBtn');
+            if (sidebarSignInBtn) {
+                sidebarSignInBtn.classList.add('hidden');
+            }
+            
+            // Hide header sign-in button
+            const signInBtnHeader = document.getElementById('signInBtnHeader');
+            if (signInBtnHeader) {
+                signInBtnHeader.style.display = 'none';
         }
         
         // Show sidebar
@@ -318,6 +337,9 @@ class ChatApp {
         }
         
         this.showToast('Welcome back!', 'success');
+        } finally {
+            this.isSigningIn = false;
+        }
     }
 
     handleSignOut() {
@@ -325,6 +347,7 @@ class ChatApp {
         this.currentSessionId = null;
         this.messages = [];
         this.useDatabase = false;
+        this.isSigningIn = false;
         
         // Hide input area
         if (this.inputArea) {
