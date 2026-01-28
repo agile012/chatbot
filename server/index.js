@@ -73,21 +73,67 @@ app.use(cors({
   credentials: true
 }));
 
-// Cookie security middleware (fixes HttpOnly, Secure, SameSite vulnerabilities)
+// Cookie security middleware (fixes HttpOnly, Secure, SameSite vulnerabilities - CWE-16, CWE-614)
 app.use((req, res, next) => {
-  // Override res.cookie to always set secure cookie attributes
+  // Override res.cookie to ALWAYS enforce secure cookie attributes
   const originalCookie = res.cookie.bind(res);
   res.cookie = function(name, value, options = {}) {
+    const isProduction = process.env.NODE_ENV === 'production';
     const secureOptions = {
       ...options,
-      httpOnly: options.httpOnly !== false, // Default true
-      secure: process.env.NODE_ENV === 'production', // Secure in production
-      sameSite: options.sameSite || 'Strict' // Default Strict
+      httpOnly: true,         // ALWAYS set HttpOnly - prevents XSS cookie theft
+      secure: isProduction,   // Secure flag in production - cookies only over HTTPS
+      sameSite: 'Strict',     // Strict SameSite - prevents CSRF attacks
+      path: options.path || '/'
     };
+    // Add expiry if not set (default 7 days for session cookies)
+    if (!secureOptions.expires && !secureOptions.maxAge) {
+      secureOptions.maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+    }
     return originalCookie(name, value, secureOptions);
   };
+  
+  // Also set security headers for any cookies set by Set-Cookie header directly
+  const originalSetHeader = res.setHeader.bind(res);
+  res.setHeader = function(name, value) {
+    if (name.toLowerCase() === 'set-cookie') {
+      const isProduction = process.env.NODE_ENV === 'production';
+      // Ensure all Set-Cookie headers have security attributes
+      if (Array.isArray(value)) {
+        value = value.map(cookie => ensureCookieSecurity(cookie, isProduction));
+      } else if (typeof value === 'string') {
+        value = ensureCookieSecurity(value, isProduction);
+      }
+    }
+    return originalSetHeader(name, value);
+  };
+  
   next();
 });
+
+// Helper function to ensure cookie security attributes
+function ensureCookieSecurity(cookieStr, isProduction) {
+  if (typeof cookieStr !== 'string') return cookieStr;
+  
+  let cookie = cookieStr;
+  
+  // Add HttpOnly if not present
+  if (!/;\s*HttpOnly/i.test(cookie)) {
+    cookie += '; HttpOnly';
+  }
+  
+  // Add Secure if in production and not present
+  if (isProduction && !/;\s*Secure/i.test(cookie)) {
+    cookie += '; Secure';
+  }
+  
+  // Add SameSite=Strict if no SameSite attribute present
+  if (!/;\s*SameSite/i.test(cookie)) {
+    cookie += '; SameSite=Strict';
+  }
+  
+  return cookie;
+}
 
 // Body parsing middleware with size limits to mitigate large payload attacks
 app.use(express.json({ limit: '10kb' }));

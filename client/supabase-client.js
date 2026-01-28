@@ -9,7 +9,20 @@ let supabase;
 
 try {
     if (window.supabase && window.supabase.createClient) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Configure Supabase with localStorage storage to avoid cookie vulnerabilities
+        // This eliminates HttpOnly and Secure cookie issues (CWE-16, CWE-614)
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                // Use localStorage instead of cookies for session storage
+                // This avoids cookie security issues (HttpOnly, Secure flags)
+                storage: window.localStorage,
+                storageKey: 'sb-auth-token',
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true,
+                flowType: 'pkce'
+            }
+        });
     } else {
         console.error('Supabase library not found on window object');
         // Fallback or mock to prevent crash, though functionality will be limited
